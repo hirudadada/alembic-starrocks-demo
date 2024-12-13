@@ -1,0 +1,53 @@
+services:
+  dev.db:
+    image: starrocks/allin1-ubuntu:3.3.7
+    user: root
+    ports:
+      - 9030:9030
+      - 8030:8030
+      - 8040:8040
+    environment:
+      - DB_NAME=demo
+    healthcheck:
+      test: ["CMD", "mysql", "-uroot", "-h", "127.0.0.1", "-P", "9030", "-e", "SELECT 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  setup.db:
+    image: starrocks/allin1-ubuntu:3.3.7
+    user: root
+    environment:
+      - DB_NAME=demo
+      - DB_HOST=dev.db
+    volumes:
+      - ./bin/starrocks:/app/bin:rw
+    command: >
+      /bin/bash -c "
+        echo 'Waiting for StarRocks to be ready...' &&
+        until mysql -uroot -h dev.db -P 9030 -e 'SELECT 1' >/dev/null 2>&1; do
+          echo 'StarRocks is not ready - sleeping 5s...'
+          sleep 5
+        done &&
+        echo 'Creating database...' &&
+        mysql -uroot -h dev.db -P 9030 -e 'CREATE DATABASE IF NOT EXISTS ${DB_NAME};' &&
+        /app/bin/init_alembic_version.sh &&
+        echo 'Setup complete.'
+      "
+    depends_on:
+      dev.db:
+        condition: service_healthy
+
+  alembic:
+    build: .
+    volumes:
+      - ./migrations:/app/migrations:rw
+      - ./alembic.ini:/app/alembic.ini:ro
+    environment:
+      - SQLALCHEMY_DATABASE_URI=${SQLALCHEMY_DATABASE_URI}
+      - DB_NAME=demo
+    entrypoint: ["alembic"]
+    command: ["upgrade", "head"]
+    depends_on:
+      setup.db:
+        condition: service_completed_successfully
