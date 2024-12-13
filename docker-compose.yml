@@ -31,7 +31,7 @@ services:
         done &&
         echo 'Creating database...' &&
         mysql -uroot -h dev.db -P 9030 -e 'CREATE DATABASE IF NOT EXISTS ${DB_NAME};' &&
-        /app/bin/init_alembic_version.sh &&
+        # /app/bin/init_alembic_version.sh &&
         echo 'Setup complete.'
       "
     depends_on:

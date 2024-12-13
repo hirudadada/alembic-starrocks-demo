@@ -14,13 +14,18 @@ USE \`${db_name}\`;
 CREATE TABLE IF NOT EXISTS alembic_version (
     version_num VARCHAR(32) NOT NULL
 )
-ENGINE=PRIMARY
+ENGINE=OLAP
 PRIMARY KEY(version_num)
 DISTRIBUTED BY HASH(version_num)
 PROPERTIES (
     "replication_num" = "1",
     "storage_format" = "DEFAULT"
 );
+
+-- Insert initial version if table is empty
+INSERT INTO alembic_version (version_num)
+SELECT 'base'
+WHERE NOT EXISTS (SELECT 1 FROM alembic_version);
 END_SQL
 )
 
