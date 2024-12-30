@@ -24,7 +24,7 @@ A Docker-based database migration tool for StarRocks using Alembic.
 1. Setup environment:
 ```bash
 # Create .env file with database connection
-SQLALCHEMY_DATABASE_URI=mysql+pymysql://root@dev.db:9030/demo
+SQLALCHEMY_DATABASE_URI=starrocks://root@dev.db:9030/demo
 ```
 
 2. Start services:
@@ -44,7 +44,7 @@ chmod +x start.sh
 
 Create a new migration:
 ```bash
-docker compose run --rm alembic alembic revision -m "create_table"
+docker compose run --rm alembic revision -m "create_table"
 ```
 
 Example migration:
@@ -73,17 +73,19 @@ def downgrade() -> None:
 
 ## Notes
 
-- Uses MySQL protocol for StarRocks compatibility
+- Uses MySQL protocol for StarRocks compatibility (changed to use Starrocks's 
+adapter on November 2024)
 - Supports StarRocks-specific DDL (OLAP engine, DUPLICATE KEY, etc.)
 - Waits for database initialization before running migrations
 
 ## Dependencies
 
+- StarRocks 3.3.7
 - Python 3.9
-- Alembic 1.12.1
+- Alembic 1.14.1
 - SQLAlchemy 2.0.23
 - PyMySQL 1.1.0
-- StarRocks 3.3.7
+- StarRocks-Python-Connector 1.1.0
 
 ## License
 
