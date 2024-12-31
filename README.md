@@ -81,7 +81,7 @@ adapter on November 2024)
 ## Dependencies
 
 - StarRocks 3.3.7
-- Python 3.9
+- Python 3.13
 - Alembic 1.14.1
 - SQLAlchemy 2.0.23
 - PyMySQL 1.1.0

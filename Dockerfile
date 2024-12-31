@@ -1,12 +1,16 @@
-FROM python:3.13-slim
+FROM python:3.13-alpine
 
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    build-essential \
-    && rm -rf /var/lib/apt/lists/*
+# Install build dependencies
+RUN apk add --no-cache \
+    build-base \
+    linux-headers \
+    # Required for MySQL/StarRocks client
+    mariadb-connector-c-dev \
+    # Required for PostgreSQL client
+    postgresql-dev
 
 # Create appuser
-RUN useradd -m -r appuser && \
+RUN adduser -D -h /app appuser && \
     mkdir -p /app && \
     chown appuser:appuser /app
 
